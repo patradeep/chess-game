@@ -6,10 +6,27 @@ import ChessBoard from './components/ChessBoard';
 import GameInfo from './components/GameInfo';
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3001';
+console.log('Connecting to server:', SERVER_URL); // Debug log
+
 const socket = io(SERVER_URL, {
-  withCredentials: true,
-  transports: ['websocket'],
-  secure: true
+  autoConnect: true,
+  reconnection: true,
+  reconnectionAttempts: 5,
+  reconnectionDelay: 1000,
+  transports: ['websocket', 'polling']
+});
+
+// Debug socket connection
+socket.on('connect', () => {
+  console.log('Connected to server!');
+});
+
+socket.on('connect_error', (error) => {
+  console.error('Connection error:', error);
+});
+
+socket.on('disconnect', (reason) => {
+  console.log('Disconnected:', reason);
 });
 
 function App() {

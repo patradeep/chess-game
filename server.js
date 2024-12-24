@@ -7,18 +7,8 @@ const path = require('path');
 
 const app = express();
 
-// Configure CORS to accept connections from any origin in development
-// and specific origins in production
-const allowedOrigins = [
-  'http://localhost:5173',
-  'http://localhost:3000',
-  'https://chess-game-patradeep.vercel.app',  
-  process.env.CLIENT_URL
-].filter(Boolean);
-
-app.use(cors({
-  origin: allowedOrigins
-}));
+// Enable CORS for all origins in development
+app.use(cors());
 
 // Serve static files from the dist directory
 app.use(express.static(path.join(__dirname, 'dist')));
@@ -29,19 +19,33 @@ app.get('*', (req, res) => {
 });
 
 const server = http.createServer(app);
+
+// Configure Socket.IO
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins,
-    methods: ["GET", "POST"],
-    credentials: true
-  }
+    origin: '*', // Allow all origins
+    methods: ['GET', 'POST'],
+    credentials: false
+  },
+  transports: ['websocket', 'polling'],
+  pingTimeout: 60000,
+  pingInterval: 25000
 });
 
-const games = new Map();
-const players = new Map();
-
+// Debug socket connections
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected:', socket.id);
+  });
+
+  socket.on('error', (error) => {
+    console.error('Socket error:', error);
+  });
+
+  const games = new Map();
+  const players = new Map();
 
   socket.on('createGame', (playerName) => {
     try {
