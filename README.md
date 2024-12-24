@@ -6,9 +6,6 @@ A modern, real-time multiplayer chess game built with React, Node.js, and Socket
 
 - Real-time multiplayer gameplay
 - Beautiful responsive design
-- Move validation with unique features:
-  - Allows moves that put your own king in check
-  - Allows moves that lead to checkmate
   - Shows possible moves for each piece
 - Game timer for each player
 - Sound effects for moves and captures
