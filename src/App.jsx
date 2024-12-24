@@ -4,6 +4,9 @@ import './App.css';
 import Login from './components/Login';
 import ChessBoard from './components/ChessBoard';
 import GameInfo from './components/GameInfo';
+import moveSound from './assets/sounds/move.mp3';
+import captureSound from './assets/sounds/capture.mp3';
+import checkmateSound from './assets/sounds/checkmate.mp3';
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3001';
 console.log('Connecting to server:', SERVER_URL); // Debug log
@@ -32,9 +35,9 @@ socket.on('disconnect', (reason) => {
 });
 
 function App() {
-  const moveSound = useRef(new Audio('/sounds/move.mp3'));
-  const captureSound = useRef(new Audio('/sounds/capture.mp3'));
-  const checkmateSound = useRef(new Audio('/sounds/checkmate.mp3'));
+  const moveAudio = useRef(new Audio(moveSound));
+  const captureAudio = useRef(new Audio(captureSound));
+  const checkmateAudio = useRef(new Audio(checkmateSound));
 
   const [gameState, setGameState] = useState({
     isPlaying: false,
@@ -58,16 +61,16 @@ function App() {
     try {
       switch(type) {
         case 'move':
-          moveSound.current.currentTime = 0;
-          moveSound.current.play();
+          moveAudio.current.currentTime = 0;
+          moveAudio.current.play();
           break;
         case 'capture':
-          captureSound.current.currentTime = 0;
-          captureSound.current.play();
+          captureAudio.current.currentTime = 0;
+          captureAudio.current.play();
           break;
         case 'checkmate':
-          checkmateSound.current.currentTime = 0;
-          checkmateSound.current.play();
+          checkmateAudio.current.currentTime = 0;
+          checkmateAudio.current.play();
           break;
       }
     } catch (error) {
