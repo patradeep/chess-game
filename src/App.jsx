@@ -9,20 +9,22 @@ const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3001';
 console.log('Connecting to server:', SERVER_URL); // Debug log
 
 const socket = io(SERVER_URL, {
+  path: '/socket.io/',
   autoConnect: true,
   reconnection: true,
   reconnectionAttempts: 5,
   reconnectionDelay: 1000,
-  transports: ['websocket', 'polling']
+  transports: ['websocket', 'polling'],
+  forceNew: true
 });
 
 // Debug socket connection
 socket.on('connect', () => {
-  console.log('Connected to server!');
+  console.log('Connected to server!', socket.id);
 });
 
 socket.on('connect_error', (error) => {
-  console.error('Connection error:', error);
+  console.error('Connection error:', error.message);
 });
 
 socket.on('disconnect', (reason) => {

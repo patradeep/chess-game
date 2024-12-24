@@ -10,18 +10,12 @@ const app = express();
 // Enable CORS for all origins in development
 app.use(cors());
 
-// Serve static files from the dist directory
-app.use(express.static(path.join(__dirname, 'dist')));
-
-// Handle all other routes by serving index.html
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
-});
-
+// Create HTTP server
 const server = http.createServer(app);
 
 // Configure Socket.IO
 const io = new Server(server, {
+  path: '/socket.io/',
   cors: {
     origin: '*', // Allow all origins
     methods: ['GET', 'POST'],
@@ -32,20 +26,36 @@ const io = new Server(server, {
   pingInterval: 25000
 });
 
+// Initialize game state
+const games = new Map();
+const players = new Map();
+
 // Debug socket connections
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
 
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
+    const gameId = players.get(socket.id);
+    if (gameId) {
+      const game = games.get(gameId);
+      if (game) {
+        clearInterval(game.timer);
+        const playerName = 
+          game.players.white?.id === socket.id ? game.players.white.name :
+          game.players.black?.id === socket.id ? game.players.black.name :
+          'Unknown player';
+        
+        io.to(gameId).emit('playerLeft', playerName);
+        games.delete(gameId);
+      }
+      players.delete(socket.id);
+    }
   });
 
   socket.on('error', (error) => {
     console.error('Socket error:', error);
   });
-
-  const games = new Map();
-  const players = new Map();
 
   socket.on('createGame', (playerName) => {
     try {
@@ -231,25 +241,14 @@ io.on('connection', (socket) => {
       socket.emit('error', 'Failed to make move');
     }
   });
+});
 
-  socket.on('disconnect', () => {
-    const gameId = players.get(socket.id);
-    if (gameId) {
-      const game = games.get(gameId);
-      if (game) {
-        clearInterval(game.timer);
-        const playerName = 
-          game.players.white?.id === socket.id ? game.players.white.name :
-          game.players.black?.id === socket.id ? game.players.black.name :
-          'Unknown player';
-        
-        io.to(gameId).emit('playerLeft', playerName);
-        games.delete(gameId);
-      }
-      players.delete(socket.id);
-    }
-    console.log('User disconnected:', socket.id);
-  });
+// Serve static files from the dist directory
+app.use(express.static(path.join(__dirname, 'dist')));
+
+// Handle all other routes by serving index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
 const PORT = process.env.PORT || 3001;
