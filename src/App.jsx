@@ -5,7 +5,8 @@ import GameInfo from './components/GameInfo';
 import Login from './components/Login';
 import './App.css';
 
-const socket = io('http://localhost:3001');
+const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3001';
+const socket = io(SERVER_URL);
 
 function App() {
   const moveSound = useRef(new Audio('/sounds/move.mp3'));
