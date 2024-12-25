@@ -230,32 +230,41 @@ function App() {
 
   return (
     <div className="App">
-      {error && <div className="error">{error}</div>}
-      
-      {!gameState.gameId ? (
-        <Login onCreateGame={createGame} onJoinGame={joinGame} />
-      ) : !gameState.isPlaying ? (
-        <div className="waiting">
-          <h2>Waiting for opponent...</h2>
-          <p>Share this game ID with your friend: <span className="game-id">{gameState.gameId}</span></p>
-        </div>
-      ) : (
-        <div className="game-container">
-          <GameInfo
-            moves={gameState.moves}
-            playerColor={gameState.playerColor}
-            currentTurn={gameState.currentTurn}
-            whiteTime={gameState.whiteTime}
-            blackTime={gameState.blackTime}
-          />
-          <ChessBoard
-            board={gameState.board}
-            playerColor={gameState.playerColor}
-            onMove={makeMove}
-            currentTurn={gameState.currentTurn}
-          />
+      {error && (
+        <div className="error-popup" onAnimationEnd={(e) => {
+          if (e.animationName === 'slideUp') {
+            setError('');
+          }
+        }}>
+          {error}
         </div>
       )}
+      <div className="game-wrapper">
+        {!gameState.gameId ? (
+          <Login onCreateGame={createGame} onJoinGame={joinGame} />
+        ) : !gameState.isPlaying ? (
+          <div className="waiting">
+            <h2>Waiting for opponent...</h2>
+            <p>Share this game ID with your friend: <span className="game-id">{gameState.gameId}</span></p>
+          </div>
+        ) : (
+          <div className="game-container">
+            <GameInfo
+              moves={gameState.moves}
+              playerColor={gameState.playerColor}
+              currentTurn={gameState.currentTurn}
+              whiteTime={gameState.whiteTime}
+              blackTime={gameState.blackTime}
+            />
+            <ChessBoard
+              board={gameState.board}
+              playerColor={gameState.playerColor}
+              onMove={makeMove}
+              currentTurn={gameState.currentTurn}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
